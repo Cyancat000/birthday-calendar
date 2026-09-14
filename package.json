@@ -1,0 +1,24 @@
+{
+  "name": "lunar-birthday-calendar",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A modern monochrome mobile-first calendar app focusing on friends birthdays (solar & lunar) and day schedules.",
+  "scripts": {
+    "dev:backend": "node --watch server/index.js",
+    "dev:frontend": "npm run dev --prefix client",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "build:frontend": "npm run build --prefix client",
+    "build": "npm run build:frontend",
+    "start": "NODE_ENV=production node server/index.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.8.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "lunar-javascript": "^1.6.13"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

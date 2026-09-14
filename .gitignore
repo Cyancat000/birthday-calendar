@@ -1,0 +1,21 @@
+# 依赖
+node_modules/
+dist/
+.vite/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 本地数据与持久化
+data/*.db
+data/*.db-wal
+data/*.db-shm
+data/cmd_config.json
+data/t2i_templates/
+data/temp/
+
+# 系统环境与系统文件
+.env
+.env.local
+.DS_Store
+*.log

@@ -1,0 +1,12 @@
+services:
+  calendar:
+    build: .
+    container_name: lunar-birthday-calendar
+    restart: unless-stopped
+    ports:
+      - "24840:24840"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - PORT=24840
+      - NODE_ENV=production
