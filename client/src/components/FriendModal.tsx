@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { X, Calendar as CalendarIcon, User, Tag, FileText } from 'lucide-react';
+import { X, Calendar as CalendarIcon, User, Tag, FileText, Info } from 'lucide-react';
 import type { Friend } from '../types';
 import { Solar, Lunar } from 'lunar-javascript';
+import { MonthDayGridPicker } from './MonthDayGridPicker';
+import { useLockBodyScroll } from '../hooks/useLockBodyScroll';
 
 interface FriendModalProps {
   isOpen: boolean;
@@ -16,6 +18,8 @@ export const FriendModal: React.FC<FriendModalProps> = ({
   onSave,
   editingFriend,
 }) => {
+  useLockBodyScroll(isOpen);
+
   const [name, setName] = useState('');
   const [nickname, setNickname] = useState('');
   const [isLunar, setIsLunar] = useState(false);
@@ -53,22 +57,20 @@ export const FriendModal: React.FC<FriendModalProps> = ({
     }
   }, [editingFriend, isOpen]);
 
-  // 动态计算公农历对应预览
+  // 动态计算公农历对应预览 (纯文本描述，不包含任何 emoji)
   useEffect(() => {
     if (!birthMonth || !birthDay) return;
     try {
       const currentYear = new Date().getFullYear();
       if (isLunar) {
-        // 输入是农历，预览当年对应公历
         try {
           const l = Lunar.fromYmd(currentYear, isLeapMonth ? -birthMonth : birthMonth, birthDay);
           const s = l.getSolar();
-          setPreviewInfo(`${currentYear}年农历生日对应公历为: ${s.getYear()}年${s.getMonth()}月${s.getDay()}日`);
+          setPreviewInfo(`${currentYear}年对应公历为: ${s.getYear()}年${s.getMonth()}月${s.getDay()}日`);
         } catch {
           setPreviewInfo('该农历日期在当年需要换算');
         }
       } else {
-        // 输入是公历，预览对应农历
         try {
           const s = Solar.fromYmd(currentYear, birthMonth, birthDay);
           const l = s.getLunar();
@@ -111,13 +113,16 @@ export const FriendModal: React.FC<FriendModalProps> = ({
   const tagPresets = ['朋友', '家人', '闺蜜/兄弟', '同事', '同学', '伴侣'];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/40 backdrop-blur-sm animate-fade-in">
+    <div 
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/40 backdrop-blur-sm animate-fade-in"
+      onClick={onClose}
+    >
       <div 
-        className="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-zinc-200 overflow-hidden flex flex-col max-h-[92vh]"
+        className="w-full max-w-lg bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl border border-zinc-200 overflow-hidden flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* 头部 */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-100">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-100 flex-shrink-0">
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 rounded-lg bg-zinc-900 text-white flex items-center justify-center">
               <User className="w-4 h-4" />
@@ -130,6 +135,7 @@ export const FriendModal: React.FC<FriendModalProps> = ({
             </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
             className="p-1.5 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 rounded-lg transition-colors"
           >
@@ -195,78 +201,56 @@ export const FriendModal: React.FC<FriendModalProps> = ({
             </div>
           </div>
 
-          {/* 生日具体选择 */}
+          {/* 生日具体选择：定制二维紧凑型网格组件 */}
           <div className="p-3.5 bg-zinc-50 rounded-xl border border-zinc-100 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-zinc-700 flex items-center gap-1.5">
                 <CalendarIcon className="w-3.5 h-3.5 text-zinc-500" />
-                {isLunar ? '农历出生日期' : '公历出生日期'}
+                {isLunar ? '农历出生月日' : '公历出生月日'}
               </span>
               {isLunar && (
-                <label className="flex items-center space-x-1.5 cursor-pointer text-xs text-zinc-600">
+                <label className="flex items-center space-x-1.5 cursor-pointer text-xs text-zinc-600 select-none">
                   <input
                     type="checkbox"
                     checked={isLeapMonth}
                     onChange={(e) => setIsLeapMonth(e.target.checked)}
                     className="w-3.5 h-3.5 rounded text-zinc-900 focus:ring-zinc-900 accent-zinc-900"
                   />
-                  <span>闰月</span>
+                  <span>农历闰月</span>
                 </label>
               )}
             </div>
 
-            <div className="grid grid-cols-3 gap-2">
-              {/* 年份（可选） */}
-              <div className="min-w-0">
-                <label className="block text-[11px] text-zinc-400 mb-1">出生年份(可选)</label>
-                <input
-                  type="number"
-                  min="1920"
-                  max="2035"
-                  value={birthYear}
-                  onChange={(e) => setBirthYear(e.target.value === '' ? '' : Number(e.target.value))}
-                  placeholder="如 1998"
-                  className="w-full px-2.5 py-1.5 text-xs bg-white border border-zinc-200 rounded-lg focus:outline-none focus:border-zinc-900"
-                />
-              </div>
-
-              {/* 月份 */}
-              <div className="min-w-0">
-                <label className="block text-[11px] text-zinc-400 mb-1">月份 *</label>
-                <select
-                  value={birthMonth}
-                  onChange={(e) => setBirthMonth(Number(e.target.value))}
-                  className="w-full px-2 py-1.5 text-xs bg-white border border-zinc-200 rounded-lg focus:outline-none focus:border-zinc-900"
-                >
-                  {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-                    <option key={m} value={m}>
-                      {isLunar ? `${m}月` : `${m}月`}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* 日期 */}
-              <div className="min-w-0">
-                <label className="block text-[11px] text-zinc-400 mb-1">日期 *</label>
-                <select
-                  value={birthDay}
-                  onChange={(e) => setBirthDay(Number(e.target.value))}
-                  className="w-full px-2 py-1.5 text-xs bg-white border border-zinc-200 rounded-lg focus:outline-none focus:border-zinc-900"
-                >
-                  {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
-                    <option key={d} value={d}>
-                      {isLunar ? `${d}日` : `${d}日`}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            {/* 出生年份（输入框） */}
+            <div className="min-w-0">
+              <label className="block text-[11px] text-zinc-400 mb-1">出生年份 (可选，用于计算周岁与生肖)</label>
+              <input
+                type="number"
+                min="1920"
+                max="2035"
+                value={birthYear}
+                onChange={(e) => setBirthYear(e.target.value === '' ? '' : Number(e.target.value))}
+                placeholder="例如 1998"
+                className="w-full px-3 py-1.5 text-xs bg-white border border-zinc-200 rounded-lg focus:outline-none focus:border-zinc-900"
+              />
             </div>
 
+            {/* 定制月份与日期二维网格选择器 */}
+            <MonthDayGridPicker
+              isLunar={isLunar}
+              selectedMonth={birthMonth}
+              selectedDay={birthDay}
+              onChange={(m, d) => {
+                setBirthMonth(m);
+                setBirthDay(d);
+              }}
+            />
+
             {previewInfo && (
-              <p className="text-[11px] text-zinc-500 bg-white/80 p-2 rounded-lg border border-zinc-100/80">
-                💡 {previewInfo}
-              </p>
+              <div className="flex items-start gap-1.5 text-[11px] text-zinc-500 bg-white p-2 rounded-lg border border-zinc-200/60">
+                <Info className="w-3.5 h-3.5 text-zinc-400 flex-shrink-0 mt-0.5" />
+                <span>{previewInfo}</span>
+              </div>
             )}
           </div>
 
@@ -305,7 +289,7 @@ export const FriendModal: React.FC<FriendModalProps> = ({
           <div>
             <label className="block text-xs font-medium text-zinc-600 mb-1.5 flex items-center gap-1.5">
               <FileText className="w-3.5 h-3.5 text-zinc-500" />
-              礼物愿望 / 喜好与忌口备注
+              喜好与忌口备注
             </label>
             <textarea
               rows={2}

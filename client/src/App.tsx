@@ -241,10 +241,10 @@ export function App() {
           <div className="bg-zinc-900 text-white rounded-2xl p-4 shadow-sm flex items-center justify-between animate-fade-in">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-amber-300" />
+                <Sparkles className="w-5 h-5 text-zinc-100" />
               </div>
               <div>
-                <div className="text-xs text-zinc-400 font-medium">✨ 今天是好友生日</div>
+                <div className="text-xs text-zinc-400 font-medium">今天是好友生日</div>
                 <div className="text-sm font-bold mt-0.5">
                   {todayBirthdays.map((f) => f.name).join('、')} 正在过生日，送句祝福吧！
                 </div>
