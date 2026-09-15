@@ -13,8 +13,6 @@ export const FriendCard: React.FC<FriendCardProps> = ({ friend, onEdit, onDelete
   const isUpcomingSoon = friend.days_until !== undefined && friend.days_until <= 7;
   const isToday = friend.days_until === 0;
 
-  // 判断是否使用了与名字不同的自定义/随机头像 Seed
-  const isCustomSeed = Boolean(friend.avatar_seed && friend.avatar_seed.trim() !== '' && friend.avatar_seed.trim() !== friend.name.trim());
   const effectiveSeed = friend.avatar_seed && friend.avatar_seed.trim() !== '' ? friend.avatar_seed.trim() : friend.name;
 
   return (
@@ -44,12 +42,6 @@ export const FriendCard: React.FC<FriendCardProps> = ({ friend, onEdit, onDelete
               {friend.tags && (
                 <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-zinc-100 text-zinc-600 font-medium">
                   {friend.tags}
-                </span>
-              )}
-              {/* 低强调性标注随机/自定义的头像 ID */}
-              {isCustomSeed && (
-                <span className="text-[10px] text-zinc-400 font-mono tracking-tight bg-zinc-50 border border-zinc-200/60 px-1 py-0.2 rounded" title={`头像ID: ${friend.avatar_seed}`}>
-                  #{friend.avatar_seed}
                 </span>
               )}
             </div>
