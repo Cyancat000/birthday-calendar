@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { X, Calendar as CalendarIcon, User, Tag, FileText, Info } from 'lucide-react';
+import { X, Calendar as CalendarIcon, User, Tag, FileText, Info, RefreshCw, RotateCcw } from 'lucide-react';
 import type { Friend } from '../types';
 import { Solar, Lunar } from 'lunar-javascript';
 import { MonthDayGridPicker } from './MonthDayGridPicker';
+import { LoreleiAvatar } from './LoreleiAvatar';
 import { useLockBodyScroll } from '../hooks/useLockBodyScroll';
 
 interface FriendModalProps {
@@ -22,6 +23,7 @@ export const FriendModal: React.FC<FriendModalProps> = ({
 
   const [name, setName] = useState('');
   const [nickname, setNickname] = useState('');
+  const [avatarSeed, setAvatarSeed] = useState('');
   const [isLunar, setIsLunar] = useState(false);
   const [birthYear, setBirthYear] = useState<number | ''>('');
   const [birthMonth, setBirthMonth] = useState<number>(1);
@@ -36,6 +38,7 @@ export const FriendModal: React.FC<FriendModalProps> = ({
     if (editingFriend) {
       setName(editingFriend.name || '');
       setNickname(editingFriend.nickname || '');
+      setAvatarSeed(editingFriend.avatar_seed || '');
       setIsLunar(Boolean(editingFriend.is_lunar));
       setBirthYear(editingFriend.birth_year || '');
       setBirthMonth(editingFriend.birth_month || 1);
@@ -46,6 +49,7 @@ export const FriendModal: React.FC<FriendModalProps> = ({
     } else {
       setName('');
       setNickname('');
+      setAvatarSeed('');
       setIsLunar(false);
       setBirthYear('');
       const today = new Date();
@@ -94,6 +98,7 @@ export const FriendModal: React.FC<FriendModalProps> = ({
       await onSave({
         name: name.trim(),
         nickname: nickname.trim() || undefined,
+        avatar_seed: avatarSeed.trim() || undefined,
         is_lunar: isLunar ? 1 : 0,
         birth_year: birthYear ? Number(birthYear) : undefined,
         birth_month: Number(birthMonth),
@@ -109,6 +114,22 @@ export const FriendModal: React.FC<FriendModalProps> = ({
       setSubmitting(false);
     }
   };
+
+  // 生成简短的随机种子（4位小写字母+数字）
+  const handleRandomSeed = () => {
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    let res = '';
+    for (let i = 0; i < 4; i++) {
+      res += chars[Math.floor(Math.random() * chars.length)];
+    }
+    setAvatarSeed(res);
+  };
+
+  const handleResetSeed = () => {
+    setAvatarSeed('');
+  };
+
+  const currentEffectiveSeed = avatarSeed.trim() || name.trim() || 'default';
 
   const tagPresets = ['朋友', '家人', '闺蜜/兄弟', '同事', '同学', '伴侣'];
 
@@ -169,6 +190,58 @@ export const FriendModal: React.FC<FriendModalProps> = ({
                 placeholder="例如: 伟哥、老张"
                 className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-900 text-zinc-900 placeholder:text-zinc-400 transition"
               />
+            </div>
+          </div>
+
+          {/* 二次元头像生成与专属种子微调区 */}
+          <div className="p-3.5 bg-zinc-50 rounded-xl border border-zinc-100 flex items-center space-x-3.5">
+            <LoreleiAvatar
+              seed={currentEffectiveSeed}
+              size={56}
+              className="border border-zinc-200 shadow-sm"
+            />
+            <div className="flex-1 min-w-0 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-zinc-700">头像形象设置</span>
+                {avatarSeed ? (
+                  <span className="text-[10px] text-zinc-400 font-mono">
+                    #{avatarSeed} (自定义)
+                  </span>
+                ) : (
+                  <span className="text-[10px] text-zinc-400 font-mono">
+                    默认基于姓名
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center space-x-1.5">
+                <input
+                  type="text"
+                  value={avatarSeed}
+                  onChange={(e) => setAvatarSeed(e.target.value)}
+                  placeholder="默认使用姓名，可输入自定义 ID"
+                  className="flex-1 min-w-0 px-2.5 py-1 text-xs bg-white border border-zinc-200 rounded-lg focus:outline-none focus:border-zinc-900 placeholder:text-zinc-400 font-mono"
+                />
+                <button
+                  type="button"
+                  onClick={handleRandomSeed}
+                  className="px-2.5 py-1 text-xs font-medium bg-white hover:bg-zinc-100 border border-zinc-200 text-zinc-800 rounded-lg flex items-center space-x-1 transition flex-shrink-0"
+                  title="随机切换头像"
+                >
+                  <RefreshCw className="w-3 h-3 text-zinc-500" />
+                  <span>随机</span>
+                </button>
+                {avatarSeed && (
+                  <button
+                    type="button"
+                    onClick={handleResetSeed}
+                    className="p-1 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 rounded-lg transition flex-shrink-0"
+                    title="重置回姓名生成"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 

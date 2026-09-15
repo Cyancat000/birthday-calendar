@@ -11,6 +11,7 @@ export interface Friend {
   tags?: string;
   notes?: string;
   avatar_color?: string;
+  avatar_seed?: string;
   created_at?: string;
   // 计算属性
   next_solar_date?: string;

@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@dicebear/core": "^9.4.3",
+    "@dicebear/lorelei": "^9.4.2",
     "clsx": "^2.1.1",
     "lucide-react": "^1.45.0",
     "lunar-javascript": "^1.7.7",

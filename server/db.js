@@ -27,7 +27,8 @@ db.exec(`
     is_leap_month INTEGER NOT NULL DEFAULT 0, -- 若农历是否为闰月 (0: 否, 1: 是)
     tags TEXT, -- 标签，如 '家人', '朋友', '同事'
     notes TEXT, -- 备注，如喜欢吃什么、忌口等
-    avatar_color TEXT, -- 头像背景色调 (黑白灰或低饱和色)
+    avatar_color TEXT, -- 头像背景色调
+    avatar_seed TEXT, -- Lorelei 头像专属种子 (可选，若为空则默认用名字)
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );

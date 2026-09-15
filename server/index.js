@@ -48,6 +48,7 @@ app.post('/api/friends', (req, res) => {
       tags,
       notes,
       avatar_color,
+      avatar_seed,
     } = req.body;
 
     if (!name || !birth_month || !birth_day) {
@@ -57,8 +58,8 @@ app.post('/api/friends', (req, res) => {
     const stmt = db.prepare(`
       INSERT INTO friends (
         name, nickname, gender, is_lunar, birth_year, birth_month, birth_day,
-        is_leap_month, tags, notes, avatar_color
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        is_leap_month, tags, notes, avatar_color, avatar_seed
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     const info = stmt.run(
@@ -72,7 +73,8 @@ app.post('/api/friends', (req, res) => {
       is_leap_month ? 1 : 0,
       tags ? tags.trim() : null,
       notes ? notes.trim() : null,
-      avatar_color || null
+      avatar_color || null,
+      avatar_seed ? avatar_seed.trim() : null
     );
 
     const newRecord = db.prepare('SELECT * FROM friends WHERE id = ?').get(info.lastInsertRowid);
@@ -100,6 +102,7 @@ app.put('/api/friends/:id', (req, res) => {
       tags,
       notes,
       avatar_color,
+      avatar_seed,
     } = req.body;
 
     const stmt = db.prepare(`
@@ -115,6 +118,7 @@ app.put('/api/friends/:id', (req, res) => {
         tags = ?,
         notes = ?,
         avatar_color = ?,
+        avatar_seed = ?,
         updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
     `);
@@ -131,6 +135,7 @@ app.put('/api/friends/:id', (req, res) => {
       tags !== undefined ? tags : null,
       notes !== undefined ? notes : null,
       avatar_color || null,
+      avatar_seed !== undefined ? (avatar_seed ? avatar_seed.trim() : null) : null,
       id
     );
 

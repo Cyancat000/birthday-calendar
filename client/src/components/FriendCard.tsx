@@ -1,6 +1,7 @@
 import React from 'react';
 import { Gift, Sparkles, Trash2, Edit3 } from 'lucide-react';
 import type { Friend } from '../types';
+import { LoreleiAvatar } from './LoreleiAvatar';
 
 interface FriendCardProps {
   friend: Friend;
@@ -12,17 +13,22 @@ export const FriendCard: React.FC<FriendCardProps> = ({ friend, onEdit, onDelete
   const isUpcomingSoon = friend.days_until !== undefined && friend.days_until <= 7;
   const isToday = friend.days_until === 0;
 
+  // 判断是否使用了与名字不同的自定义/随机头像 Seed
+  const isCustomSeed = Boolean(friend.avatar_seed && friend.avatar_seed.trim() !== '' && friend.avatar_seed.trim() !== friend.name.trim());
+  const effectiveSeed = friend.avatar_seed && friend.avatar_seed.trim() !== '' ? friend.avatar_seed.trim() : friend.name;
+
   return (
     <div className="group relative bg-white border border-zinc-200/90 rounded-2xl p-4 shadow-sm hover:border-zinc-300 hover:shadow-md transition-all duration-200 min-w-0">
       <div className="flex items-start justify-between gap-2 min-w-0">
         {/* 左侧头像与主体信息 */}
         <div className="flex items-center space-x-3 min-w-0 flex-1">
-          <div className={`w-11 h-11 rounded-2xl flex-shrink-0 flex items-center justify-center font-bold text-sm transition-colors ${
-            isToday 
-              ? 'bg-zinc-900 text-white shadow-md ring-2 ring-zinc-900 ring-offset-2' 
-              : 'bg-zinc-100 text-zinc-800'
-          }`}>
-            {friend.name.slice(0, 1)}
+          {/* 二次元黑白头像 */}
+          <div className="relative flex-shrink-0">
+            <LoreleiAvatar
+              seed={effectiveSeed}
+              size={44}
+              className={isToday ? 'ring-2 ring-zinc-900 ring-offset-2' : ''}
+            />
           </div>
 
           <div className="min-w-0 flex-1">
@@ -38,6 +44,12 @@ export const FriendCard: React.FC<FriendCardProps> = ({ friend, onEdit, onDelete
               {friend.tags && (
                 <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-zinc-100 text-zinc-600 font-medium">
                   {friend.tags}
+                </span>
+              )}
+              {/* 低强调性标注随机/自定义的头像 ID */}
+              {isCustomSeed && (
+                <span className="text-[10px] text-zinc-400 font-mono tracking-tight bg-zinc-50 border border-zinc-200/60 px-1 py-0.2 rounded" title={`头像ID: ${friend.avatar_seed}`}>
+                  #{friend.avatar_seed}
                 </span>
               )}
             </div>
